@@ -11,17 +11,17 @@ namespace safel
     option<void*> memenv_alloc(memenv* env, size_t bytes)
     {
         if(!dynarray_reserve(env->blocks))
-            return option<void*>::none();
+            return safel::none;
 
         void* block = malloc(bytes);
         
         if(block != nullptr)
         {
             dynarray_add_unsafe(env->blocks, block);
-            return option<void*>::some(block);
+            return safel::some(block);
         }
 
-        return option<void*>::none();
+        return safel::none;
     }
 
     inline option<void*> memenv_realloc(memenv* env, void* block, size_t bytes)
@@ -42,15 +42,15 @@ namespace safel
             }
         }
 
-        if(!found) return option<void*>::none();
+        if(!found) return safel::none;
         
         void* new_block = realloc(block, bytes);
 
         if(new_block == nullptr)
-            return option<void*>::none();
+            return safel::none;
 
         env->blocks[index] = new_block;
-        return option<void*>::some(new_block);
+        return safel::some(new_block);
     }
 
     void memenv_free(memenv* env)

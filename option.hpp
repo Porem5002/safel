@@ -11,13 +11,24 @@ namespace safel
         NONE,
     };
 
+    struct option_none { };
+
+    constexpr option_none none = {};
+
     template<typename V>
     class option
     {
         option_mode m_mode;
         V m_value;
 
+        option() = default;
+
     public:
+        option(option_none)
+        {
+            this->m_mode = option_mode::NONE;
+        }
+
         static constexpr option<V> some(V value)
         {
             option<V> o;
@@ -28,10 +39,8 @@ namespace safel
 
         static constexpr option<V> none()
         {
-            option<V> o;
-            o.m_mode = option_mode::NONE;
-            return o;
-        } 
+            return option<V>(safel::none);
+        }
 
         constexpr option_mode mode() const
         {
@@ -65,6 +74,12 @@ namespace safel
             return this->m_value;
         }
     };
+
+    template<typename V>
+    constexpr option<V> some(V value)
+    {
+        return option<V>::some(value);
+    }
 }
 
 #endif

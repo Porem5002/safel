@@ -30,13 +30,13 @@ namespace safel
     {
         auto p = allocator.alloc(sizeof(T) * size);
 
-        if(p.is_none()) return option<array<T>>::none();
+        if(p.is_none()) return safel::none;
 
         array<T> arr;
         arr.allocator = allocator;
         arr.data = (T*)p.unwrap();
         arr.size = size;
-        return option<array<T>>::some(arr);
+        return safel::some(arr);
     }
 
     template<typename T>
@@ -150,7 +150,7 @@ namespace safel
     {
         auto p = arr.allocator.realloc(arr.data, sizeof(T) * arr.size);
 
-        if(p.is_none()) return option<array<T>>::none();
+        if(p.is_none()) return safel::none;
 
         T* data = (T*)p.unwrap();
 
@@ -162,7 +162,7 @@ namespace safel
 
         arr = dynarray_new<T>(arr.allocator);
 
-        return option<array<T>>::some(r);
+        return safel::some(r);
     }
 
     template<typename T>
