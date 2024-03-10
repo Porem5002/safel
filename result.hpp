@@ -11,6 +11,18 @@ namespace safel
         ERR,
     };
 
+    template<typename V>
+    struct result_ok
+    {
+        V value;
+    };
+
+    template<typename E>
+    struct result_err
+    {
+        E error;
+    };
+
     template<typename V, typename E>
     class result
     {
@@ -20,23 +32,21 @@ namespace safel
         {
             V m_value;
             E m_error;
-        } as;
+        };
 
     public:
+        constexpr result(result_ok<V> r_ok) : m_mode(result_mode::OK), m_value(r_ok.value) { }
+
+        constexpr result(result_err<E> r_err) : m_mode(result_mode::ERR), m_error(r_err.error) { }
+
         static constexpr result<V, E> ok(V value)
         {
-            result<V,E> r;
-            r.m_mode = result_mode::OK;
-            r.as.m_value = value;
-            return r;
+            return result<V, E>(result_ok { value });
         }
 
         static constexpr result<V, E> err(E error)
         {
-            result<V,E> r;
-            r.m_mode = result_mode::ERR;
-            r.as.m_error = error;
-            return r;
+            return result<V, E>(result_err { error });
         } 
 
         constexpr result_mode mode() const
@@ -58,7 +68,7 @@ namespace safel
         {
             if(is_ok())
             {
-                out = this->as.m_value;
+                out = this->m_value;
                 return true;
             }
 
@@ -69,7 +79,7 @@ namespace safel
         {
             if(is_err())
             {
-                out = this->as.m_error;
+                out = this->m_error;
                 return true;
             }
 
@@ -79,15 +89,27 @@ namespace safel
         constexpr V unwrap_ok() const
         {
             assert(is_ok());
-            return this->as.m_value;
+            return this->m_value;
         }
 
         constexpr E unwrap_err() const
         {
             assert(is_err());
-            return this->as.m_error;
+            return this->m_error;
         }
     };
+
+    template<typename V>
+    constexpr result_ok<V> ok(V value)
+    {
+        return result_ok<V> { value };
+    }
+
+    template<typename E>
+    constexpr result_err<E> err(E error)
+    {
+        return result_err<E> { error };
+    }
 }
 
 #endif
