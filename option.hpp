@@ -21,20 +21,14 @@ namespace safel
         option_mode m_mode;
         V m_value;
 
-        option() = default;
+        constexpr option(V value) : m_mode(option_mode::SOME), m_value(value) { }
 
     public:
-        option(option_none)
-        {
-            this->m_mode = option_mode::NONE;
-        }
+        constexpr option(option_none) : m_mode(option_mode::NONE), m_value{} { }
 
         static constexpr option<V> some(V value)
         {
-            option<V> o;
-            o.m_mode = option_mode::SOME;
-            o.m_value = value;
-            return o;
+            return option(value);
         }
 
         static constexpr option<V> none()
