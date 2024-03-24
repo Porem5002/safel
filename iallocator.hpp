@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cassert>
 
+#include "alloc.hpp"
 #include "option.hpp"
 
 namespace safel
@@ -103,16 +104,9 @@ namespace safel
     }
 
     constexpr iallocator_info libc_allocator_info = allocator_info_init(
-        [](void*, size_t bytes) { 
-            void* ptr = malloc(bytes);
-            return ptr != nullptr ? option<void*>::some(ptr) : option<void*>::none(); 
-        },
-        [](void*, void* block, size_t bytes)
-        { 
-            void* ptr = realloc(block, bytes);
-            return ptr != nullptr ? option<void*>::some(ptr) : option<void*>::none(); 
-        },
-        [](void*, void* block) { return free(block); });
+        [](void*, size_t bytes) { return safel::malloc_bytes(bytes); },
+        [](void*, void* block, size_t bytes) { return safel::realloc_bytes(block, bytes); },
+        [](void*, void* block) { return safel::free(block); });
 
     constexpr iallocator libc_allocator = { nullptr, &libc_allocator_info };
 }

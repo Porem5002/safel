@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "memenv.hpp"
+#include "alloc.hpp"
 #include "option.hpp"
 
 namespace safel
@@ -13,15 +14,12 @@ namespace safel
         if(!dynarray_reserve(env->blocks))
             return safel::none;
 
-        void* block = malloc(bytes);
+        option<void*> block = safel::malloc_bytes(bytes);
         
-        if(block != nullptr)
-        {
-            dynarray_add_unsafe(env->blocks, block);
-            return safel::some(block);
-        }
+        if(block.is_some())
+            dynarray_add_unsafe(env->blocks, block.unwrap());
 
-        return safel::none;
+        return block;
     }
 
     inline option<void*> memenv_realloc(memenv* env, void* block, size_t bytes)
@@ -44,13 +42,12 @@ namespace safel
 
         if(!found) return safel::none;
         
-        void* new_block = realloc(block, bytes);
+        option<void*> new_block = safel::realloc_bytes(block, bytes);
 
-        if(new_block == nullptr)
-            return safel::none;
-
-        env->blocks[index] = new_block;
-        return safel::some(new_block);
+        if(new_block.is_some())
+            env->blocks[index] = new_block.unwrap();
+        
+        return new_block;
     }
 
     void memenv_free(memenv* env)
